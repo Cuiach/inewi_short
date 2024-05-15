@@ -1,27 +1,12 @@
 ﻿namespace Inewi_Console.Entities
 {
-    public class Leave
+    public class Leave(int employeeId, int numberAsId)
     {
-        public int Id { get; set; }
-        public int EmployeeId { get; set; }
-        public DateTime DateFrom { get; set; }
-        public DateTime DateTo { get; set; }
-        public bool IsOnDemand { get; set; }
-
-        public Leave(int employeeId, int numberAsId, bool isManuallyCreated)
-        {
-            Id = numberAsId;
-            EmployeeId = employeeId;
-
-            if (isManuallyCreated)
-            {
-                DateFrom = DateTime.Today.Date.AddDays(-6);
-                DateTo = DateTime.Today.Date;
-                IsOnDemand = false;
-            }
-            else
-            {}
-        }
+        public int Id { get; set; } = numberAsId;
+        public int EmployeeId { get; set; } = employeeId;
+        public DateTime DateFrom {  get; set; } = DateTime.Today.Date.AddDays(-6);
+        public DateTime DateTo { get; set; } = DateTime.Today.Date;
+        public bool IsOnDemand { get; set; } = false;
 
         internal static void DisplayLeaveDetails(Leave leave)
         {
@@ -34,21 +19,20 @@
 
         internal int GetLeaveLength()
         {
-            WorkDaysCalculator workDaysCalculator = new();
-            return workDaysCalculator.CountWorkDaysBetweenDates(DateFrom, DateTo);
+            return (DateTo - DateFrom).Days + 1;
         }
  
-        internal int HowManyCalendarYearsLeaveSpans()
+        internal bool IsLeaveInOneYear()
         {
-            int yearFrom = DateFrom.Year;
-            int yearTo = DateTo.Year;
-                return yearFrom - yearTo + 1;
-        }
-
-        internal int GetWorkDaysOfLeave()
-        {
-            WorkDaysCalculator calculator = new();
-            return calculator.CountWorkDaysBetweenDates(DateFrom, DateTo);
+            if (DateFrom.Year != DateTo.Year)
+            {
+                Console.WriteLine("Leave must be within one calendar year. Try again with correct dates.");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }

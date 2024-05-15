@@ -29,7 +29,6 @@ while (true)
             application.DisplayMatchingEmployees(searchPhrase);
             break;
         case "4":
-            Console.Write("Employee - ");
             int intToRemove = AuxiliaryMethods.GetId();
             if (intToRemove != 0)
             {
@@ -37,7 +36,6 @@ while (true)
             }
             break;
         case "5":
-            Console.Write("Employee - ");
             int employeeId = AuxiliaryMethods.GetId();
             if (employeeId != 0)
             {
@@ -51,7 +49,6 @@ while (true)
             application.DisplayAllLeavesOnDemand();
             break;
         case "6E":
-            Console.Write("Employee - ");
             employeeId = AuxiliaryMethods.GetId();
             if (employeeId != 0)
             {
@@ -60,7 +57,6 @@ while (true)
             break;
         case "6ED":
         case "6DE":
-            Console.Write("Employee - ");
             employeeId = AuxiliaryMethods.GetId();
             if (employeeId != 0)
             {
@@ -68,7 +64,6 @@ while (true)
             }
             break;
         case "7":
-            Console.Write("Leave - ");
             int intOfLeaveToRemove = AuxiliaryMethods.GetId();
             if (intOfLeaveToRemove != 0)
             {
@@ -76,7 +71,6 @@ while (true)
             }
             break;
         case "8":
-            Console.Write("Leave - ");
             int intOfLeaveToEdit = AuxiliaryMethods.GetId();
             if (intOfLeaveToEdit != 0)
             {
@@ -84,7 +78,6 @@ while (true)
             }
             break;
         case "9":
-            Console.Write("Employee - ");
             int intOfEmployeeToEdit = AuxiliaryMethods.GetId();
             if (intOfEmployeeToEdit != 0)
             {

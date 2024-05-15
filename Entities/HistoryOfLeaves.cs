@@ -4,47 +4,12 @@
     {
         public List<Leave> Leaves { get; set; } = [];
 
-        internal void SplitLeaveIntoConsecutiveBusinessDaysBits(Leave leave)
+        private static void DisplayLeaves(List<Leave> SetOfLeaves)
         {
-            int leaveId = leave.Id;
-            int employeeeId = leave.EmployeeId;
-            DateTime dateFrom = leave.DateFrom;
-            DateTime dateTo = leave.DateTo;
-            bool isOnDemand = leave.IsOnDemand;
-            RemoveLeave(leaveId);
-            WorkDaysCalculator workDaysCalculator = new();
-            List<List<DateTime>> listOfLeaves = workDaysCalculator.GetUninterruptedWorkDays(dateFrom, dateTo);
-
-            int i = 0;
-            foreach (var uninterruptedRange in listOfLeaves)
+            foreach (var leave in SetOfLeaves)
             {
-                Leave leaveHere = new(employeeeId, leaveId + i, false);
-                leaveHere.IsOnDemand = isOnDemand;
-                leaveHere.DateFrom = uninterruptedRange.First();
-                leaveHere.DateTo = uninterruptedRange.Last();
-
-                Leaves.Add(leaveHere);
-                i++;
+                Leave.DisplayLeaveDetails(leave);
             }
-        }
-
-        internal int GetLastLeaveYearOfEmployee(int employeeId)
-        {
-            int year;
-
-            var leaves = Leaves.Where(l => l.EmployeeId == employeeId).ToList();
-
-            if (leaves.Count == 0)
-            {
-                year = 0;
-            }
-            else
-            {
-                DateTime lastLeaveDate = leaves.Max(l => l.DateTo);
-                year = lastLeaveDate.Year;
-            }
-
-            return year;
         }
 
         public bool CheckOverlapping(Leave leave)
@@ -66,35 +31,42 @@
             return true;
         }
 
-        public void AddLeave(Leave leave, bool askIfOnDemand)
+        public void AddLeave(Leave leave, int ommitterOnDemandAsk)
         {
-            if (leave.DateFrom.Year == DateTime.Now.Year && askIfOnDemand == true)
+            if (leave.DateFrom.Year == DateTime.Now.Year && ommitterOnDemandAsk == 1)
             {
-                Console.WriteLine("Is this leave On Demand? (click y to nod or n to deny or enter to skip)");
-
-                string input = Console.ReadLine();
-
-                bool _ = (input == "y") ? (leave.IsOnDemand = true) : ((input == "n") ? leave.IsOnDemand = false : true);
+                Console.WriteLine("Is this leave On Demand? (click y or enter to skip)");
+                if (Console.ReadLine() == "y")
+                {
+                    leave.IsOnDemand = true;
+                }
             }
 
-            Leaves.Add(leave);
+            if (CheckOverlapping(leave))
+            {
+                Leaves.Add(leave);
+            }
+            else
+            {
+                Console.WriteLine("Leave cannot be added. Try again with correct dates.");
+            }
         }
 
         public void DisplayAllLeaves()
         {
-            AuxiliaryMethods.DisplayLeaves(Leaves);
+            DisplayLeaves(Leaves);
         }
 
         public void DisplayAllLeavesOnDemand()
         {
             var onDemandLeaves = Leaves.Where(l => l.IsOnDemand).ToList();
-            AuxiliaryMethods.DisplayLeaves((List<Leave>)onDemandLeaves);
+            DisplayLeaves((List<Leave>)onDemandLeaves);
         }
 
         public void DisplayAllLeavesForEmployee(int employeeId)
         {
             var leavesOfEmployee = Leaves.Where(l => l.EmployeeId == employeeId).ToList();
-            AuxiliaryMethods.DisplayLeaves((List<Leave>)leavesOfEmployee);
+            DisplayLeaves((List<Leave>)leavesOfEmployee);
         }
 
         public void DisplayAllLeavesForEmployeeOnDemand(int employeeId)
@@ -102,7 +74,7 @@
             var leavesOfEmployeeOnDemand = Leaves.Where
                 (l => l.EmployeeId == employeeId).Where
                 (l => l.IsOnDemand).ToList();
-            AuxiliaryMethods.DisplayLeaves((List<Leave>)leavesOfEmployeeOnDemand);
+            DisplayLeaves((List<Leave>)leavesOfEmployeeOnDemand);
         }
 
         public void RemoveLeave(int intOfLeaveToRemove)
@@ -144,7 +116,7 @@
             return sumOfOnDemandDays;
         }
 
-        public int CountSumOfPastYearLeaveDays(int employeeId, int year)
+        public int CountSumOfPastYearLeaveDays(int employeeId, int year) 
         {
             int sumOfPreviousYearLeaveDays = 0;
             foreach (var leave in Leaves)

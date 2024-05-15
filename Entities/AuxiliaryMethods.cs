@@ -20,7 +20,7 @@ namespace Inewi_Console.Entities
 
         public static int GetId() 
         {
-            Console.WriteLine("insert id");
+            Console.WriteLine("Insert id");
             var idAsString = (Console.ReadLine() ?? "0");
             bool _ = int.TryParse(idAsString, out int idOrZero);
             return idOrZero;
@@ -44,15 +44,6 @@ namespace Inewi_Console.Entities
             newLimit = inputFromUser == "" ? defaultNumber : ToInt(inputFromUser);
             newLimit = newLimit < 0 ? defaultNumber : newLimit;
             return newLimit;
-        }
-
-        internal static void DisplayLeaves(List<Leave> setOfLeaves)
-        {
-            List<Leave> orderedLeaves = [.. setOfLeaves.OrderBy(l => l.DateFrom)];
-            foreach (var leave in orderedLeaves)
-            {
-                Leave.DisplayLeaveDetails(leave);
-            }
         }
     }
 }
