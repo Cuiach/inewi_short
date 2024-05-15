@@ -1,4 +1,6 @@
-﻿namespace Inewi_Console.Entities
+﻿using System.Globalization;
+
+namespace Inewi_Console.Entities
 {
     public class ListOfEmployees
     {
@@ -10,57 +12,8 @@
         public List<Employee> Employees { get; set; } = [];
         private HistoryOfLeaves allLeavesInStorage;
 
-//employee-related methods
-        private bool EmployeeExists(int employeeId)
-        {
-            Employee employee = Employees.FirstOrDefault(e => e.Id == employeeId);
-            if (employee == null)
-            {
-                Console.WriteLine("There is no employee with this Id.");
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        private void PropagateLeaveLimitsForCurrentYearForAllEmployees()
-        {
-            int thisYear = DateTime.Today.Year;
-            foreach (var employee in Employees)
-            {
-                LeaveLimit leaveLimit = employee.LeaveLimits.FirstOrDefault(l => l.Year == thisYear);
-                if (leaveLimit == null)
-                {
-                    LeaveLimit newLeaveLimit = new(thisYear, employee.LeavesPerYear);
-                    employee.LeaveLimits.Add(newLeaveLimit);
-                }
-            }
-        }
-
-        private bool CheckIfLeaveLimitExistsForCurrentYear(Employee employee)
-        {
-            if(!employee.LeaveLimitForCurrentYearExists())
-            {
-                Console.WriteLine("It looks there is one or more employees who do not have leave limit set for this year. Do you want to fill leave limits in all missing places? Put y if yes");
-                if(Console.ReadLine() == "y")
-                {
-                    PropagateLeaveLimitsForCurrentYearForAllEmployees();
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        private void DisplayEmployeeDetails(Employee employee, int leaveDaysTaken, int onDemandTaken)
+        //employee-related methods
+        private void DisplayEmployeeDetails(Employee employee, int leaveDaysTaken)
         {
             LeaveLimit leaveLimitThisYear = employee.LeaveLimits.First(l => l.Year == DateTime.Now.Year);
             int previousYear = DateTime.Now.Year - 1;
@@ -72,7 +25,7 @@
             }
 
             Console.Write($"Employee: {employee.FirstName}, {employee.LastName}, {employee.Id}, leaves: {leaveDaysTaken}/{leaveDaysAvailable}, " +
-                $"on demand: {onDemandTaken}/{employee.OnDemandPerYear}, joined: {employee.DayOfJoining.Year}.{employee.DayOfJoining.Month}.{employee.DayOfJoining.Day},");
+                $"joined: {employee.DayOfJoining.Year}.{employee.DayOfJoining.Month}.{employee.DayOfJoining.Day},");
             for (int i = employee.DayOfJoining.Year; i <= DateTime.Now.Year; i++)
             {
                 LeaveLimit limitPerYear = employee.LeaveLimits.FirstOrDefault(l => l.Year == i);
@@ -82,29 +35,14 @@
             ShowLeaveAvailableForAllPastYears(employee);
         }
 
-        private void DisplayAllEmployeesDetails(List<Employee> employees)
-        {
-            foreach (var employee in employees)
-            {
-                if (CheckIfLeaveLimitExistsForCurrentYear(employee))
-                {
-                    var leaveDaysTakenThisYear = allLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, DateTime.Now.Year);
-                    var onDemandTaken = allLeavesInStorage.GetSumOnDemand(employee.Id);
-                    DisplayEmployeeDetails(employee, leaveDaysTakenThisYear, onDemandTaken);
-                }
-                else
-                {
-                    Console.WriteLine("Leave limit for employee is not set for current year. Thus it is not possible to show details.");
-                }
-            }
-        }
-
         private void ChangeAccruedLeaveLimitPolicy(Employee employee)
         {
             var choice = "";
             string yearsWhenLeaveIsValid = "";
-            Employee employeeAuxiliary = new("employee", "auxiliary", 0);
-            employeeAuxiliary.HowManyYearsToTakePastLeave = employee.HowManyYearsToTakePastLeave;
+            Employee employeeAuxiliary = new("employee", "auxiliary", 0)
+            {
+                HowManyYearsToTakePastLeave = employee.HowManyYearsToTakePastLeave
+            };
 
             switch (employee.HowManyYearsToTakePastLeave)
             {
@@ -204,261 +142,56 @@
             }
         }
 
-        private void SeeAndChangeLeaveLimits(Employee employee)
-        {
-            var choice = "";
-            Employee employeeAuxiliary = new("employee", "auxiliary", 0);
-            Console.WriteLine("See and change leave limits for employee for given year");
-
-            for (int i = employee.DayOfJoining.Year; i <= DateTime.Now.Year; i++)
-            {
-                LeaveLimit leaveLimit = employee.LeaveLimits.FirstOrDefault(l => l.Year == i);
-                if (leaveLimit == null)
-                {
-                    leaveLimit = new(i, employee.LeavesPerYear);
-                    employee.LeaveLimits.Add(leaveLimit);
-
-                    Console.WriteLine($"Year: {i}, limit: {leaveLimit.Limit}");
-                    Console.WriteLine("Do you want to change the limit? Press y if yes");
-                    choice = Console.ReadLine();
-
-                    if (choice == "y")
-                    {
-                        Console.WriteLine("Put limit:");
-                        string? newLimit = Console.ReadLine();
-                        try
-                        {
-                            int number = int.Parse(newLimit);
-                            leaveLimit.Limit = number;
-                            Console.WriteLine($"Year: {i}, limit is set to: {number}");
-                        }
-                        catch (FormatException)
-                        {
-                            Console.WriteLine("Input is not in correct format.");
-                        }
-                        catch (OverflowException)
-                        {
-                            Console.WriteLine("Input is too large or too small.");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"An error occurred: {ex.Message}");
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Year: {i}, limit: {leaveLimit.Limit}");
-                    Console.WriteLine("Do you want to change the limit? Press y if yes");
-                    choice = Console.ReadLine();
-
-                    if (choice == "y")
-                    {
-                        LeaveLimit auxiliaryLeaveLimit = new(i, leaveLimit.Limit);
-                        Console.WriteLine("Put limit:");
-                        string? newLimit = Console.ReadLine();
-                        try
-                        {
-                            int number = int.Parse(newLimit);
-                            leaveLimit.Limit = number;
-                            if (IsLeaveLimitPolicySatisfied(employee))
-                            {
-                                Console.WriteLine($"Year: {i}, limit is set to: {number}");
-                            }
-                            else
-                            {
-                                leaveLimit.Limit = auxiliaryLeaveLimit.Limit;
-                                Console.WriteLine("Leave limit policy is violated. Leave limit was not changed.");
-                            }
-                        }
-                        catch (FormatException)
-                        {
-                            Console.WriteLine("Input is not in correct format.");
-                        }
-                        catch (OverflowException)
-                        {
-                            Console.WriteLine("Input is too large or too small.");
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"An error occurred: {ex.Message}");
-                        }
-                    }
-                }
-            }
-        }
-
         public void AddEmployee()
         {
-            int defaultOnDemand = 4;
-            int defaultLeavePerYear = 26;
             Console.WriteLine("Insert first name");
             var firstName = Console.ReadLine();
             Console.WriteLine("Insert last name");
             var lastName = Console.ReadLine();
-            
+            Console.WriteLine("Leave limit policy (0, 1, 2 or 3==nolimit):");
+            var leaveLimitPolicy = (Console.ReadLine());
+
             if (firstName != null && lastName != null)
             {
                 int newEmployeeId = Employees.Count == 0 ? 1 : Employees.LastOrDefault().Id + 1;
 
                 var newEmployee = new Employee(firstName, lastName, newEmployeeId);
 
-                Console.WriteLine($"On Demand for the employee per year - is it {defaultOnDemand}? If yes press enter; if not put correct number and enter");
-                newEmployee.OnDemandPerYear = AuxiliaryMethods.SetNewLimit(Console.ReadLine(), defaultOnDemand);
-                Console.WriteLine($"On demand leave was set to: {newEmployee.OnDemandPerYear}");
-
-                Console.WriteLine($"Leave days per year for the employee - is it {defaultLeavePerYear}? If yes press enter; if not put correct number and enter");
-                newEmployee.PropagateLeaveLimitForCurrentYear(AuxiliaryMethods.SetNewLimit(Console.ReadLine(), defaultLeavePerYear), true);
-
-                newEmployee.DayOfJoining = DateTime.Today;
+                switch (leaveLimitPolicy)
+                {
+                    case "0":
+                        newEmployee.HowManyYearsToTakePastLeave = Employee.YearsToTakeLeave.CurrentOnly;
+                        break;
+                    case "1":
+                        newEmployee.HowManyYearsToTakePastLeave = Employee.YearsToTakeLeave.OneMore;
+                        break;
+                    case "2":
+                        newEmployee.HowManyYearsToTakePastLeave = Employee.YearsToTakeLeave.TwoMore;
+                        break;
+                    case "3":
+                        newEmployee.HowManyYearsToTakePastLeave = Employee.YearsToTakeLeave.NoLimit;
+                        break;
+                    default:
+                        Console.WriteLine("Something went wrong - nothing set anew");
+                        return;
+                }
 
                 Employees.Add(newEmployee);
-                DisplayEmployeeDetails(newEmployee, 0, 0);
-                Console.WriteLine("Day of joining of employee is set to today. If you want to change it go to edit settings");
+                DisplayEmployeeDetails(newEmployee, 0);
             }
         }
 
-        public void DisplayAllEmployees()
+        public void DisplayAllEmployees()        
         {
-            DisplayAllEmployeesDetails(Employees);
-        }
-
-        public void RemoveEmployee(int employeeId)
-        {
-            if (!EmployeeExists(employeeId))
+            foreach (var employee in Employees)
             {
-                return;
-            }
-            else
-            {
-                var employeeToRemove = Employees.First(c => c.Id == employeeId);
-                Employees.Remove(employeeToRemove);
+                var leaveDaysTakenThisYear = allLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, DateTime.Now.Year);
+                DisplayEmployeeDetails(employee, leaveDaysTakenThisYear);
             }
         }
 
-        public void DisplayMatchingEmployees(string searchPhrase)
-        {
-            var matchingEmployees = Employees
-                .Where(e => e.FirstName == searchPhrase || e.LastName == searchPhrase)
-                .ToList();
+        //leave-related methods
 
-            if (matchingEmployees.Any())
-            {
-                DisplayAllEmployeesDetails(matchingEmployees);
-            }
-            else
-            {
-                Console.WriteLine("No employee was found");
-            }
-        }
-
-        public void EditSettings(int employeeIdToEdit)
-        {
-            if (!EmployeeExists(employeeIdToEdit))
-            {
-                return;
-            };
-
-            string? choice;
-            var employee = Employees.FirstOrDefault(e => e.Id == employeeIdToEdit);
-            int oldYearOfRecruitment = employee.DayOfJoining.Year;
-
-            Console.WriteLine($"On Demand for the employee per year - is it {employee.OnDemandPerYear}? If yes press enter; if not put correct number and enter");
-            int newOnDemand = AuxiliaryMethods.SetNewLimit(Console.ReadLine(), employee.OnDemandPerYear);
-            if (allLeavesInStorage.GetSumOnDemand(employee.Id) > newOnDemand)
-            {
-                Console.WriteLine($"On demand leave limit: {employee.OnDemandPerYear} days and cannot be changed. Check already taken leaves on demand.");
-            }
-            else
-            {
-                employee.OnDemandPerYear = newOnDemand;
-                Console.WriteLine($"On demand leave limit: {employee.OnDemandPerYear} days");
-            }
-
-            //LeaveLimit leaveLimitThisYear = employee.LeaveLimits.FirstOrDefault(l => l.Year == DateTime.Now.Year);
-            //if (leaveLimitThisYear == null)
-            //{
-            //    employee.PropagateLeaveLimitForCurrentYear(employee.LeavesPerYear, false);
-            //    //leaveLimitThisYear = new(DateTime.Now.Year, employee.LeavesPerYear);
-            //    //employee.LeaveLimits.Add(leaveLimitThisYear);
-            //}
-
-            Console.WriteLine($"Leave days per year for the employee - is it {employee.LeavesPerYear}? If yes press enter; if not put correct number and enter");
-            Employee auxiliaryEmployee = new("aux", "emp", 0);
-            auxiliaryEmployee.LeavesPerYear = employee.LeavesPerYear;
-            employee.PropagateLeaveLimitForCurrentYear(AuxiliaryMethods.SetNewLimit(Console.ReadLine(), employee.LeavesPerYear), false);
-            if (IsLeaveLimitPolicySatisfied(employee))
-            {
-                Console.WriteLine($"Leave limit: {employee.LeavesPerYear}");
-            }
-            else
-            {
-                employee.PropagateLeaveLimitForCurrentYear(auxiliaryEmployee.LeavesPerYear, false);
-                Console.WriteLine($"Leave limit cannot be changed and is: {employee.LeavesPerYear}. Check possible violation of leave limit policy.");
-            }
-
-            Console.WriteLine("Do you want to change employee's date of recruitment? Press y if yes");
-            choice = Console.ReadLine();
-            if (choice == "y")
-            {
-                DateTime newDateOfRecruitment;
-                string dateFromUser = "";
-                while (!AuxiliaryMethods.IsValidDate(dateFromUser))
-                {
-                    Console.WriteLine("Enter a date of recruitment (yyyy-MM-dd): ");
-                    dateFromUser = Console.ReadLine();
-                }
-                newDateOfRecruitment = DateTime.ParseExact(dateFromUser, "yyyy-MM-dd", null);
-
-                Leave oldestLeave = allLeavesInStorage.Leaves.OrderBy(l => l.DateFrom).FirstOrDefault();
-                if (oldestLeave != null)
-                {
-                    if (oldestLeave.DateFrom < newDateOfRecruitment)
-                    {
-                        Console.WriteLine("There is an older leave. The employee joined earlier. So you cannot change date of recruitment.");
-                    }
-                    else
-                    {
-                        employee.AdjustDateOfRecruitmentAndThusLeaveLimits(dateFromUser);
-                    }
-                }
-                else
-                {
-                    employee.AdjustDateOfRecruitmentAndThusLeaveLimits(dateFromUser);
-                }
-            }
-
-            SeeAndChangeLeaveLimits(employee);
-
-            ChangeAccruedLeaveLimitPolicy(employee);
-        }
-
-//leave-related methods
-        private bool IsLeaveLimitPolicySatisfied(Employee employee)
-        {
-            for (int i = employee.DayOfJoining.Year; i <= DateTime.Now.Year; i++)
-            {
-                if (CountLeaveAvailable(employee, i, 0) < 0)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        private bool IsOnDemandLimitSatisfied(Employee employee, int newOnDemandLeaveLength)
-        {
-            int onDemandTaken = allLeavesInStorage.GetSumOnDemand(employee.Id);
-            if (employee.OnDemandPerYear >= onDemandTaken + newOnDemandLeaveLength)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        
         private static bool IsLeaveAfterDateOfRecruitment(Employee employee, Leave leave)
         {
             if (leave.DateFrom < employee.DayOfJoining)
@@ -471,7 +204,19 @@
                 return true;
             }
         }
-        
+
+        private bool IsLeaveLimitPolicySatisfied(Employee employee)
+        {
+            for (int i = employee.DayOfJoining.Year; i <= DateTime.Now.Year; i++)
+            {
+                if (CountLeaveAvailable(employee, i, 0) < 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private int ExcessLeaveFromPastYearCurrentOnly(Employee employee, int k)
         {
             return 0;
@@ -582,11 +327,6 @@
         
         public void AddLeave(int employeeId)
         {
-            if(!EmployeeExists(employeeId))
-            {
-                return;
-            };
-
             Employee employee = Employees.FirstOrDefault(e => e.Id == employeeId);
 
             int lastAddedLeaveId = allLeavesInStorage.Leaves.Count == 0 ? 0 : allLeavesInStorage.Leaves.LastOrDefault().Id;
@@ -635,13 +375,11 @@
 
             if(!IsLeaveAfterDateOfRecruitment(employee, leave) || !leave.IsLeaveInOneYear())
             {
+                Console.WriteLine("Leave is not added. Either recruitment day is after leave or leave is spans across 2 calendar years.");
                 return;
             }
 
-            int ableOnDemand = 0;
-            _ = IsOnDemandLimitSatisfied(employee, leave.GetLeaveLength()) ? ableOnDemand = 1 : 0;
-
-            allLeavesInStorage.AddLeave(leave, ableOnDemand);
+            allLeavesInStorage.AddLeave(leave);
            
             ShowLeaveAvailableForAllPastYears(employee); //TEST PURPOSE
 
@@ -657,115 +395,14 @@
             allLeavesInStorage.DisplayAllLeaves();
         }
         
-        public void DisplayAllLeavesOnDemand()
-        {
-            allLeavesInStorage.DisplayAllLeavesOnDemand();
-        }
-        
         public void DisplayAllLeavesForEmployee(int employeeId)
         {
             allLeavesInStorage.DisplayAllLeavesForEmployee(employeeId);
         }
-        
-        public void DisplayAllLeavesForEmployeeOnDemand(int employeeId)
-        {
-            allLeavesInStorage.DisplayAllLeavesForEmployeeOnDemand(employeeId);
-        }
-        
+
         public void RemoveLeave(int intOfLeaveToRemove)
         {
             allLeavesInStorage.RemoveLeave(intOfLeaveToRemove);
-        }
- 
-        public void EditLeave(int intOfLeaveToEdit)
-        {
-            var leaveToEdit = allLeavesInStorage.Leaves.FirstOrDefault(l => l.Id == intOfLeaveToEdit);
-
-            if (leaveToEdit == null)
-            {
-                Console.WriteLine("Leave not found");
-            }
-            else
-            {
-                Employee employee = Employees.First(e => e.Id == leaveToEdit.EmployeeId);
-                Leave leaveAuxiliary = new(leaveToEdit.EmployeeId, leaveToEdit.Id)
-                {
-                    DateFrom = leaveToEdit.DateFrom,
-                    DateTo = leaveToEdit.DateTo,
-                    IsOnDemand = leaveToEdit.IsOnDemand
-                };
-
-                Console.WriteLine("Put date of beginning of leave (or put any letter to skip)");
-
-                if (DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime userDateTimeFrom))
-                {
-                    Console.WriteLine("The day of the week is: " + userDateTimeFrom.DayOfWeek);
-                    leaveAuxiliary.DateFrom = userDateTimeFrom;
-                    if (!IsLeaveAfterDateOfRecruitment(employee, leaveAuxiliary))
-                    {
-                        return;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Date 'from' is not changed.");
-                }
-
-                Console.WriteLine("Put date of end of leave (or put any letter to skip)");
-                if (DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime userDateTimeTo))
-                {
-                    Console.WriteLine("The day of the week is: " + userDateTimeTo.DayOfWeek);
-                    leaveAuxiliary.DateTo = userDateTimeTo;
-                }
-                else
-                {
-                    Console.WriteLine("Date 'to' is not changed.");
-                }
-                
-                if (!leaveAuxiliary.IsLeaveInOneYear())
-                {
-                    return;
-                }
-
-                allLeavesInStorage.RemoveLeave(intOfLeaveToEdit);
-                int ableOnDemand = 0;
-                _ = IsOnDemandLimitSatisfied(employee, leaveAuxiliary.GetLeaveLength()) ? ableOnDemand = 1 : 0;
-
-                if (leaveToEdit.IsOnDemand && ableOnDemand == 0)
-                {
-                    Console.WriteLine("The edited leave is On Demand. Yet after change it will not be possible due to exceeding On Demand leave limit per year. Do you want to proceeed and keep the leave as NOT On Demand? (put y if yes)");
-                    if (Console.ReadLine() == "y")
-                    {
-                        leaveAuxiliary.IsOnDemand = false;
-                        allLeavesInStorage.AddLeave(leaveAuxiliary, ableOnDemand);
-                        ShowLeaveAvailableForAllPastYears(employee); //TEST PURPOSE
-
-                        if (!IsLeaveLimitPolicySatisfied(employee))
-                        {
-                            allLeavesInStorage.RemoveLeave(intOfLeaveToEdit);
-                            allLeavesInStorage.AddLeave(leaveToEdit, 0);
-                            Console.WriteLine("Leave cannot be changed. Leave limit policy is violated.");
-                        }
-                    }
-                    else
-                    {
-                        allLeavesInStorage.AddLeave(leaveToEdit, 0);
-                        Console.WriteLine("Leave is not changed.");
-                    }
-                }
-                else
-                {
-                    allLeavesInStorage.AddLeave(leaveAuxiliary, ableOnDemand);
-                    ShowLeaveAvailableForAllPastYears(employee); //TEST PURPOSE
-
-                    if (!IsLeaveLimitPolicySatisfied(employee))
-                    {
-                        allLeavesInStorage.RemoveLeave(intOfLeaveToEdit);
-                        allLeavesInStorage.AddLeave(leaveToEdit, 0);
-                        Console.WriteLine("Leave cannot be changed. Leave limit policy is violated.");
-                    }
-                }
-            }
         }
     }
 }

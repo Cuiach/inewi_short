@@ -31,17 +31,8 @@
             return true;
         }
 
-        public void AddLeave(Leave leave, int ommitterOnDemandAsk)
+        public void AddLeave(Leave leave)
         {
-            if (leave.DateFrom.Year == DateTime.Now.Year && ommitterOnDemandAsk == 1)
-            {
-                Console.WriteLine("Is this leave On Demand? (click y or enter to skip)");
-                if (Console.ReadLine() == "y")
-                {
-                    leave.IsOnDemand = true;
-                }
-            }
-
             if (CheckOverlapping(leave))
             {
                 Leaves.Add(leave);
@@ -57,24 +48,10 @@
             DisplayLeaves(Leaves);
         }
 
-        public void DisplayAllLeavesOnDemand()
-        {
-            var onDemandLeaves = Leaves.Where(l => l.IsOnDemand).ToList();
-            DisplayLeaves((List<Leave>)onDemandLeaves);
-        }
-
         public void DisplayAllLeavesForEmployee(int employeeId)
         {
             var leavesOfEmployee = Leaves.Where(l => l.EmployeeId == employeeId).ToList();
             DisplayLeaves((List<Leave>)leavesOfEmployee);
-        }
-
-        public void DisplayAllLeavesForEmployeeOnDemand(int employeeId)
-        {
-            var leavesOfEmployeeOnDemand = Leaves.Where
-                (l => l.EmployeeId == employeeId).Where
-                (l => l.IsOnDemand).ToList();
-            DisplayLeaves((List<Leave>)leavesOfEmployeeOnDemand);
         }
 
         public void RemoveLeave(int intOfLeaveToRemove)
@@ -101,19 +78,6 @@
                 }
             }
             return sumOfLeaveDays;
-        }
-
-        public int GetSumOnDemand(int employeeId)
-        {
-            var sumOfOnDemandDays = 0;
-            foreach (Leave leave in Leaves)
-            {
-                if (leave.EmployeeId == employeeId && leave.DateFrom.Year == DateTime.Now.Year && leave.IsOnDemand == true)
-                {
-                    sumOfOnDemandDays += leave.GetLeaveLength();
-                }
-            }
-            return sumOfOnDemandDays;
         }
 
         public int CountSumOfPastYearLeaveDays(int employeeId, int year) 
