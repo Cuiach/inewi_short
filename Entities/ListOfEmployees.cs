@@ -74,7 +74,7 @@ namespace Inewi_Console.Entities
             }
         }
 
-        public void DisplayAllEmployees()        
+        public void DisplayAllEmployees()
         {
             foreach (var employee in Employees)
             {
