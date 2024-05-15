@@ -10,7 +10,7 @@
             Console.WriteLine("6 Display all leaves (you can add E - for 1 employee only: 6, 6E)");
             Console.WriteLine("7 Remove leave");
             Console.WriteLine(" If you want to see this menu insert 'm'");
-            Console.WriteLine(" To exit insert 'x'");
+            Console.WriteLine(" To exit insert 'x'; to show menu insert 'm'");
         }
     }
 }
