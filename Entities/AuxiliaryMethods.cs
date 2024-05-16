@@ -20,7 +20,6 @@ namespace Inewi_Console.Entities
 
         public static int GetId() 
         {
-            Console.WriteLine("Insert id");
             var idAsString = (Console.ReadLine() ?? "0");
             bool _ = int.TryParse(idAsString, out int idOrZero);
             return idOrZero;

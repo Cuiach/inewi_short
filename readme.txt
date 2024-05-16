@@ -1,4 +1,4 @@
-Ta apka jest prostszą wersją rozbudowanej apki z całym CRUDem.
+Ta apka jest prostszą wersją rozbudowanej apki. Ta chuda wersja nie ma całego CRUDu. Jest tylko do pokazania działania obliczania zaległych urlopów.
 
 Nowo zakładany pracownik jest domyślnie przyjęty 2020-01-01 i w każdym roku (2020, 21, 22, 23 i 24) ma po 26 dni urlopu.
 

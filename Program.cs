@@ -24,6 +24,7 @@ while (true)
             application.DisplayAllEmployees();
             break;
         case "5":
+            Console.WriteLine("Insert employee id");
             int employeeId = AuxiliaryMethods.GetId();
             if (employeeId != 0)
             {
@@ -34,6 +35,7 @@ while (true)
             application.DisplayAllLeaves();
             break;
         case "6E":
+            Console.WriteLine("Insert employee id");
             employeeId = AuxiliaryMethods.GetId();
             if (employeeId != 0)
             {
@@ -41,6 +43,7 @@ while (true)
             }
             break;
         case "7":
+            Console.WriteLine("Insert leave id");
             int intOfLeaveToRemove = AuxiliaryMethods.GetId();
             if (intOfLeaveToRemove != 0)
             {
