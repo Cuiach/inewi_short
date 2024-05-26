@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inewi_Console", "Inewi_Console.csproj", "{C7049EC1-5D43-4EC4-8CEB-716479A6A91E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inewi_Short", "Inewi_Short.csproj", "{C7049EC1-5D43-4EC4-8CEB-716479A6A91E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inewi_Console.Tests", "..\Inewi_Console.Tests\Inewi_Console.Tests.csproj", "{62916C76-C249-4BAA-8B52-8A0613E9C14A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inewi_Short.Tests", "..\Inewi_Short.Tests\Inewi_Short.Tests.csproj", "{1B5D6F3D-7422-4289-8D30-2A102FB82B91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{C7049EC1-5D43-4EC4-8CEB-716479A6A91E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7049EC1-5D43-4EC4-8CEB-716479A6A91E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7049EC1-5D43-4EC4-8CEB-716479A6A91E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62916C76-C249-4BAA-8B52-8A0613E9C14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62916C76-C249-4BAA-8B52-8A0613E9C14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62916C76-C249-4BAA-8B52-8A0613E9C14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62916C76-C249-4BAA-8B52-8A0613E9C14A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B5D6F3D-7422-4289-8D30-2A102FB82B91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B5D6F3D-7422-4289-8D30-2A102FB82B91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B5D6F3D-7422-4289-8D30-2A102FB82B91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B5D6F3D-7422-4289-8D30-2A102FB82B91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

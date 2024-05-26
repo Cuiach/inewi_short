@@ -1,5 +1,5 @@
-﻿using Inewi_Console.Entities;
-using Inewi_Console.Presentation;
+﻿using Inewi_Short.Entities;
+using Inewi_Short.Presentation;
 
 Console.WriteLine("--- Leave management app ---");
 

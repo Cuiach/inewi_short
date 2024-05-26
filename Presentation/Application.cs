@@ -1,6 +1,6 @@
-﻿using Inewi_Console.Entities;
+﻿using Inewi_Short.Entities;
 
-namespace Inewi_Console.Presentation
+namespace Inewi_Short.Presentation
 {
     public class Application
     {

@@ -1,4 +1,4 @@
-﻿namespace Inewi_Console.Entities
+﻿namespace Inewi_Short.Entities
 {
     public class Employee(string firstName, string lastName, int id)
     {
@@ -13,6 +13,7 @@
             new(2022, 26),
             new(2023, 26),
             new(2024, 26),
+
         ];
         public enum YearsToTakeLeave
         {

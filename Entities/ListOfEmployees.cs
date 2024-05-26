@@ -1,16 +1,14 @@
-﻿using System.Globalization;
-
-namespace Inewi_Console.Entities
+﻿namespace Inewi_Short.Entities
 {
     public class ListOfEmployees
     {
         public ListOfEmployees()
         {
             HistoryOfLeaves allLeavesInStorage = new();
-            this.allLeavesInStorage = allLeavesInStorage;
+            this.AllLeavesInStorage = allLeavesInStorage;
         }
         public List<Employee> Employees { get; set; } = [];
-        private HistoryOfLeaves allLeavesInStorage;
+        internal HistoryOfLeaves AllLeavesInStorage;
 
         //employee-related methods
         private void DisplayEmployeeDetails(Employee employee, int leaveDaysTaken)
@@ -78,7 +76,7 @@ namespace Inewi_Console.Entities
         {
             foreach (var employee in Employees)
             {
-                var leaveDaysTakenThisYear = allLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, DateTime.Now.Year);
+                var leaveDaysTakenThisYear = AllLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, DateTime.Now.Year);
                 DisplayEmployeeDetails(employee, leaveDaysTakenThisYear);
             }
         }
@@ -118,7 +116,7 @@ namespace Inewi_Console.Entities
         private int ExcessLeaveFromPastYearOneMore(Employee employee, int k)
         {
             LeaveLimit leaveLimitInYearK = employee.LeaveLimits.First(l => l.Year == k);
-            int sumOfLeavesInYearK = allLeavesInStorage.CountSumOfPastYearLeaveDays(employee.Id, k);
+            int sumOfLeavesInYearK = AllLeavesInStorage.CountSumOfPastYearLeaveDays(employee.Id, k);
 
             if (employee.DayOfJoining.Year != k)
             {
@@ -133,7 +131,7 @@ namespace Inewi_Console.Entities
         private int ExcessLeaveFromPastYearTwoMore(Employee employee, int k)
         {
             LeaveLimit leaveLimitInYearK = employee.LeaveLimits.First(l => l.Year == k);
-            int sumOfLeavesInYearK = allLeavesInStorage.CountSumOfPastYearLeaveDays(employee.Id, k);
+            int sumOfLeavesInYearK = AllLeavesInStorage.CountSumOfPastYearLeaveDays(employee.Id, k);
 
             if (employee.DayOfJoining.Year == k)
             {
@@ -154,7 +152,7 @@ namespace Inewi_Console.Entities
         private int ExcessLeaveFromPastYearNoLimit(Employee employee, int k)
         {
             LeaveLimit leaveLimitInYearK = employee.LeaveLimits.First(l => l.Year == k);
-            int sumOfLeavesInYearK = allLeavesInStorage.CountSumOfPastYearLeaveDays(employee.Id, k);
+            int sumOfLeavesInYearK = AllLeavesInStorage.CountSumOfPastYearLeaveDays(employee.Id, k);
 
             if (employee.DayOfJoining.Year != k)
             {
@@ -166,7 +164,7 @@ namespace Inewi_Console.Entities
             }
         }
         
-        private int CountExcessLeaveFromPast(Employee employee, int year)
+        internal int CountExcessLeaveFromPast(Employee employee, int year)
         {
             int countedExcess = 0;
             switch (employee.HowManyYearsToTakePastLeave)
@@ -187,15 +185,15 @@ namespace Inewi_Console.Entities
             return countedExcess;
         }
         
-        private int CountLeaveAvailable(Employee employee, int year, int whetherToDisplayLeaveDetails)
+        internal int CountLeaveAvailable(Employee employee, int year, int whetherToDisplayLeaveDetails)
         {
             int result = 0;
             LeaveLimit leaveLimit = employee.LeaveLimits.First(l => l.Year == year);
-            result = leaveLimit.Limit - allLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, year);
+            result = leaveLimit.Limit - AllLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, year);
 
             if (whetherToDisplayLeaveDetails == 1)
             {
-                Console.Write($"In {year} year: {leaveLimit.Limit} limit and {allLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, year)} taken.");
+                Console.Write($"In {year} year: {leaveLimit.Limit} limit and {AllLeavesInStorage.GetSumOfDaysOnLeaveTakenByEmployeeInYear(employee.Id, year)} taken.");
             }
 
             if (employee.DayOfJoining.Year < year)
@@ -222,7 +220,7 @@ namespace Inewi_Console.Entities
         {
             Employee employee = Employees.FirstOrDefault(e => e.Id == employeeId);
 
-            int lastAddedLeaveId = allLeavesInStorage.Leaves.Count == 0 ? 0 : allLeavesInStorage.Leaves.LastOrDefault().Id;
+            int lastAddedLeaveId = AllLeavesInStorage.Leaves.Count == 0 ? 0 : AllLeavesInStorage.Leaves.LastOrDefault().Id;
             Leave leave = new(employeeId, lastAddedLeaveId + 1);
 
             Console.WriteLine("Default leave dates are set to: from {0}, to {1}. Do you want to keep them? Press enter if yes. Put n and enter if you want to set the dates manually", leave.DateFrom.ToString("yyyy-MM-dd"), leave.DateTo.ToString("yyyy-MM-dd"));
@@ -272,7 +270,7 @@ namespace Inewi_Console.Entities
                 return;
             }
 
-            allLeavesInStorage.AddLeave(leave);
+            AllLeavesInStorage.AddLeave(leave);
            
             ShowLeaveAvailableForAllPastYears(employee); //TEST PURPOSE
 
@@ -285,17 +283,17 @@ namespace Inewi_Console.Entities
         
         public void DisplayAllLeaves()
         {
-            allLeavesInStorage.DisplayAllLeaves();
+            AllLeavesInStorage.DisplayAllLeaves();
         }
         
         public void DisplayAllLeavesForEmployee(int employeeId)
         {
-            allLeavesInStorage.DisplayAllLeavesForEmployee(employeeId);
+            AllLeavesInStorage.DisplayAllLeavesForEmployee(employeeId);
         }
 
         public void RemoveLeave(int intOfLeaveToRemove)
         {
-            allLeavesInStorage.RemoveLeave(intOfLeaveToRemove);
+            AllLeavesInStorage.RemoveLeave(intOfLeaveToRemove);
         }
     }
 }
