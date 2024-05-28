@@ -1,10 +1,10 @@
 {
-  "profiles": {
-    "Inewi_Console": {
-      "commandName": "Project"
-    },
-    "Profile 1": {
-      "commandName": "Project"
+    "profiles": {
+        "Leave_Manager_Short_Console": {
+            "commandName": "Project"
+        },
+        "Profile 1": {
+            "commandName": "Project"
+        }
     }
-  }
 }

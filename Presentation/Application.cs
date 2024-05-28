@@ -1,6 +1,6 @@
-﻿using Inewi_Short.Entities;
+﻿using Leave_Manager_Short_Console.Entities;
 
-namespace Inewi_Short.Presentation
+namespace Leave_Manager_Short_Console.Presentation
 {
     public class Application
     {

@@ -1,4 +1,4 @@
-﻿namespace Inewi_Short.Entities
+﻿namespace Leave_Manager_Short_Console.Entities
 {
     public class Leave(int employeeId, int numberAsId)
     {
